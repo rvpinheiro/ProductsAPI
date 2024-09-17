@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductsAPI.Data;
+using ProductsAPI.Enums;
 using ProductsAPI.Models;
 using ProductsAPI.Repositories.Interfaces;
 using System;
@@ -37,26 +38,44 @@ namespace ProductsAPI.Repositories
             return produto;
         }
 
-        public async Task<ProdutoModel> Actualizar(ProdutoModel produto, int id)
+        public async Task<ProdutoModel> Actualizar(ProdutoModel produtoAtualizado, int id)
         {
-            ProdutoModel produtoId = await PesquisarPorId(id);
+            ProdutoModel produtoExistente = await PesquisarPorId(id);
 
-            if (produtoId == null)
+            if (produtoExistente == null)
             {
                 throw new KeyNotFoundException($"Produto com o id {id} não foi encontrado.");
             }
 
-                produtoId.Nome = produto.Nome;
-                produtoId.Tipo = produto.Tipo;
-                produtoId.Estado = produto.Estado;
-                produtoId.Preco = produto.Preco;
-                produtoId.Quantidade = produto.Quantidade;
+            // Atualizar os campos relevantes
+            if (!string.IsNullOrEmpty(produtoAtualizado.Nome))
+            {
+                produtoExistente.Nome = produtoAtualizado.Nome;
+            }
+            if (produtoAtualizado.Tipo != default) // Verifica se o tipo é diferente do valor padrão
+            {
+                produtoExistente.Tipo = produtoAtualizado.Tipo;
+            }
+            if (produtoAtualizado.Estado != default) 
+            {
+                produtoExistente.Estado = produtoAtualizado.Estado;
+            }
+            if (produtoAtualizado.Preco != default) 
+            {
+                produtoExistente.Preco = produtoAtualizado.Preco;
+            }
+            if (produtoAtualizado.Quantidade != default) 
+            {
+                produtoExistente.Quantidade = produtoAtualizado.Quantidade;
+            }
 
-            _dbContext.Produtos.Update(produtoId);
+            _dbContext.Produtos.Update(produtoExistente);
             await _dbContext.SaveChangesAsync();
 
-            return produtoId;
+            return produtoExistente;
         }
+
+
 
         public async Task<bool> Apagar(int id)
         {

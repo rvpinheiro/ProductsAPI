@@ -75,20 +75,43 @@ namespace ProductsAPI.Controllers
         }
 
         // Editar produto
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ProdutoModel>> Atualizar([FromBody] ProdutoModel produtoModel, int id)
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<ProdutoModel>> AtualizarParcial(int id, [FromBody] ProdutoUpdateModel produtoUpdateModel)
         {
             try
             {
-                produtoModel.Id = id;
-                ProdutoModel produto = await _produtoRepositorio.Actualizar(produtoModel, id);
+                ProdutoModel produtoExistente = await _produtoRepositorio.PesquisarPorId(id);
 
-                if (produto == null)
+                if (produtoExistente == null)
                 {
                     return NotFound($"Produto com ID {id} não encontrado.");
                 }
 
-                return Ok(produto);
+                // Atualizar somente os campos que foram enviados
+                if (produtoUpdateModel.Nome != null)
+                {
+                    produtoExistente.Nome = produtoUpdateModel.Nome;
+                }
+                if (produtoUpdateModel.Tipo.HasValue)
+                {
+                    produtoExistente.Tipo = produtoUpdateModel.Tipo.Value;
+                }
+                if (produtoUpdateModel.Estado.HasValue)
+                {
+                    produtoExistente.Estado = produtoUpdateModel.Estado.Value;
+                }
+                if (produtoUpdateModel.Preco.HasValue)
+                {
+                    produtoExistente.Preco = produtoUpdateModel.Preco.Value;
+                }
+                if (produtoUpdateModel.Quantidade.HasValue)
+                {
+                    produtoExistente.Quantidade = produtoUpdateModel.Quantidade.Value;
+                }
+
+                await _produtoRepositorio.Actualizar(produtoExistente, id);
+
+                return Ok(produtoExistente);
             }
             catch (Exception ex)
             {
