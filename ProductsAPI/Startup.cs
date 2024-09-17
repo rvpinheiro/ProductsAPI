@@ -39,6 +39,7 @@ namespace ProductsAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProductsAPI", Version = "v1" });
+                c.OperationFilter<CustomOperationFilter>();
             });
         }
 

@@ -76,7 +76,7 @@ namespace ProductsAPI.Controllers
 
         // Editar produto
         [HttpPatch("{id}")]
-        public async Task<ActionResult<ProdutoModel>> AtualizarParcial(int id, [FromBody] ProdutoUpdateModel produtoUpdateModel)
+        public async Task<ActionResult<ProdutoModel>> Atualizar(int id, [FromBody] ProdutoUpdateModel produtoUpdateModel)
         {
             try
             {
