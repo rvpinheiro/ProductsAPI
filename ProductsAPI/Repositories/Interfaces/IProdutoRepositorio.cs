@@ -9,7 +9,6 @@ namespace ProductsAPI.Repositories.Interfaces
     public interface IProdutoRepositorio
     {
         // Task -> Operação assincrona 
-
         Task<List<ProdutoModel>> PesquisarTodos(); 
         Task<ProdutoModel> PesquisarPorId(int id);
         Task<ProdutoModel> Adicionar(ProdutoModel utilizador);

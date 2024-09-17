@@ -20,50 +20,101 @@ namespace ProductsAPI.Controllers
         }
 
 
-        // Pesquisa de produtos
         [HttpGet]
         public async Task<ActionResult<List<ProdutoModel>>> PesquisaTodosProdutos()
         {
-            List<ProdutoModel> produtos = await _produtoRepositorio.PesquisarTodos();
-            return Ok(produtos);
+            try
+            {
+                List<ProdutoModel> produtos = await _produtoRepositorio.PesquisarTodos();
+                return Ok(produtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao processar a solicitação: {ex.Message}");
+            }
         }
 
         // Pesquisa de produto por ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<List<ProdutoModel>>> PesquisaPorId(int id)
+        public async Task<ActionResult<ProdutoModel>> PesquisaPorId(int id)
         {
-            ProdutoModel produto = await _produtoRepositorio.PesquisarPorId(id);
-
-            if (produto == null)
+            try
             {
-                return NotFound();
+                ProdutoModel produto = await _produtoRepositorio.PesquisarPorId(id);
+
+                if (produto == null)
+                {
+                    return NotFound($"Produto com ID {id} não encontrado.");
+                }
+                return Ok(produto);
             }
-            return Ok(produto);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao processar a solicitação: {ex.Message}");
+            }
         }
 
         // Registo de produtos
         [HttpPost]
         public async Task<ActionResult<ProdutoModel>> Registar([FromBody] ProdutoModel produtoModel)
         {
-            ProdutoModel produto = await _produtoRepositorio.Adicionar(produtoModel);
-            return Ok(produto);
+            if (!ModelState.IsValid) // Garantir que os dados do model estão corretos
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                ProdutoModel produto = await _produtoRepositorio.Adicionar(produtoModel);
+                return Ok(produto); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao processar a solicitação: {ex.Message}");
+            }
         }
 
         // Editar produto
         [HttpPut("{id}")]
         public async Task<ActionResult<ProdutoModel>> Atualizar([FromBody] ProdutoModel produtoModel, int id)
         {
-            produtoModel.Id = id;
-            ProdutoModel produto = await _produtoRepositorio.Actualizar(produtoModel, id);
-            return Ok(produto);
+            try
+            {
+                produtoModel.Id = id;
+                ProdutoModel produto = await _produtoRepositorio.Actualizar(produtoModel, id);
+
+                if (produto == null)
+                {
+                    return NotFound($"Produto com ID {id} não encontrado.");
+                }
+
+                return Ok(produto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao processar a solicitação: {ex.Message}");
+            }
         }
 
-        //Apagar produto
+        // Apagar produto
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ProdutoModel>> Apagar(int id)
+        public async Task<ActionResult> Apagar(int id)
         {
-            bool produtoApagado = await _produtoRepositorio.Apagar(id);
-            return Ok(produtoApagado);
+            try
+            {
+                bool produtoApagado = await _produtoRepositorio.Apagar(id);
+
+                if (!produtoApagado)
+                {
+                    return NotFound($"Produto com ID {id} não encontrado.");
+                }
+
+                return NoContent(); // Retorna 204 No Content para uma eliminação bem-sucedida
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao processar a solicitação: {ex.Message}");
+            }
         }
     }
 }

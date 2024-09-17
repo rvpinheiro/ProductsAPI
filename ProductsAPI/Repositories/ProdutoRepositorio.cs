@@ -15,9 +15,9 @@ namespace ProductsAPI.Repositories
         private readonly SistemaProdutosDBContext _dbContext;
 
         // injecção de dependência na classe para gerenciar a conexão com a base de dados
-        public ProdutoRepositorio(SistemaProdutosDBContext sistemaProdutosDBContext)
+        public ProdutoRepositorio(SistemaProdutosDBContext dbContext)
         {
-            _dbContext = sistemaProdutosDBContext;
+            _dbContext = dbContext;
         }
 
         public async Task<ProdutoModel> PesquisarPorId(int id)
@@ -43,8 +43,9 @@ namespace ProductsAPI.Repositories
 
             if (produtoId == null)
             {
-                throw new Exception($"Produto com o id {id} não foi encontrado.");
+                throw new KeyNotFoundException($"Produto com o id {id} não foi encontrado.");
             }
+
                 produtoId.Nome = produto.Nome;
                 produtoId.Tipo = produto.Tipo;
                 produtoId.Estado = produto.Estado;
@@ -63,7 +64,7 @@ namespace ProductsAPI.Repositories
 
             if (produtoId == null)
             {
-                throw new Exception($"Produto com o id {id} não foi encontrado.");
+                throw new KeyNotFoundException($"Produto com o id {id} não foi encontrado.");
             }
 
             _dbContext.Remove(produtoId);
